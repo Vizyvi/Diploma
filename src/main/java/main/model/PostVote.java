@@ -1,7 +1,6 @@
-package model;
+package main.model;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -12,17 +11,25 @@ public class PostVote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @NotNull
+    @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
     private int userId;
 
-    @NotNull
+    @Column(name = "post_id", nullable = false, insertable = false, updatable = false)
     private int postId;
 
-    @NotNull
+    @Column(name = "time", nullable = false)
     private Date time;
 
-    @NotNull
+    @Column(name = "value", nullable = false)
     private boolean haveValue;
+
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     public int getId() {
         return id;
@@ -46,6 +53,22 @@ public class PostVote {
 
     public void setPostId(int postId) {
         this.postId = postId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
     }
 
     public Date getTime() {

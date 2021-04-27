@@ -1,8 +1,8 @@
-package model;
+package main.model;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -12,24 +12,35 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @NotNull
+    @Column(name = "is_moderator", nullable = false)
     private boolean isModerator;
 
-    @NotNull
+    @Column(name = "reg_time", nullable = false)
     private Date regTime;
 
-    @NotNull
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @NotNull
+    @Column(name = "email", nullable = false)
     private String eMail;
 
-    @NotNull
+    @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "code")
     private String code;
 
+    @Column(name = "photo")
     private String photo;
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "user")
+    private List<PostComment> postComments;
+
+    @OneToMany(mappedBy = "user")
+    private List<PostVote> postVotes;
 
     public int getId() {
         return id;
@@ -93,5 +104,29 @@ public class User {
 
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
+
+    public List<PostComment> getPostComments() {
+        return postComments;
+    }
+
+    public void setPostComments(List<PostComment> postComments) {
+        this.postComments = postComments;
+    }
+
+    public List<PostVote> getPostVotes() {
+        return postVotes;
+    }
+
+    public void setPostVotes(List<PostVote> postVotes) {
+        this.postVotes = postVotes;
     }
 }

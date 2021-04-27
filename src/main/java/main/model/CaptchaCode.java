@@ -1,7 +1,6 @@
-package model;
+package main.model;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -12,14 +11,14 @@ public class CaptchaCode {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @NotNull
+    @Column(name = "time", nullable = false)
     private Date time;
 
-    @NotNull
-    private boolean code;
+    @Column(name = "code", nullable = false)
+    private String code;
 
-    @NotNull
-    private boolean secretCode;
+    @Column(name = "secret_code", nullable = false)
+    private String secretCode;
 
     public int getId() {
         return id;
@@ -37,19 +36,19 @@ public class CaptchaCode {
         this.time = time;
     }
 
-    public boolean isCode() {
+    public String isCode() {
         return code;
     }
 
-    public void setCode(boolean code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
-    public boolean isSecretCode() {
+    public String isSecretCode() {
         return secretCode;
     }
 
-    public void setSecretCode(boolean secretCode) {
+    public void setSecretCode(String secretCode) {
         this.secretCode = secretCode;
     }
 }

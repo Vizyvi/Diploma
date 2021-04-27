@@ -1,7 +1,6 @@
-package model;
+package main.model;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -12,19 +11,28 @@ public class PostComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "parent_id")
     private int parentId;
 
-    @NotNull
+    @Column(name = "post_id", nullable = false, insertable = false, updatable = false)
     private int postId;
 
-    @NotNull
+    @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
     private int userId;
 
-    @NotNull
+    @Column(name = "time", nullable = false)
     private Date time;
 
-    @NotNull
+    @Column(name = "text", nullable = false)
     private String text;
+
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     public int getId() {
         return id;
@@ -56,6 +64,22 @@ public class PostComment {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Date getTime() {
