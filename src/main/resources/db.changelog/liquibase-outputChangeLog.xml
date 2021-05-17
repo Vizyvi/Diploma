@@ -37,11 +37,6 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="meteo (generated)" id="1621004064122-3">
-        <createTable tableName="hibernate_sequence">
-            <column name="next_val" type="BIGINT"/>
-        </createTable>
-    </changeSet>
     <changeSet author="meteo (generated)" id="1621004064122-4">
         <createTable tableName="post_comments">
             <column autoIncrement="true" name="id" type="INT">

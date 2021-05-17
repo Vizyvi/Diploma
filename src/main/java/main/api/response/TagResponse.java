@@ -1,4 +1,4 @@
-package main.api.request;
+package main.api.response;
 
 public class TagResponse {
 }

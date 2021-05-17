@@ -6,12 +6,16 @@
                    http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd
                    http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-    <include file="create-table-global-settings.xml" relativeToChangelogFile="true"/>
+    <include file="liquibase-outputChangeLog.xml" relativeToChangelogFile="true"/>
 
-    <changeSet id="100" author="meteo">
-        <sqlFile dbms="sql"
-                 encoding="utf8"
-                 relativeToChangelogFile="true"
-                path="generate-global-settings.sql"/>
-    </changeSet>
+    <include file="/someData/insert_some_data.xml" relativeToChangelogFile="true"/>
+
+<!--    <changeSet id="109" author="meteo">-->
+<!--        <sqlFile dbms="sql"-->
+<!--                 encoding="utf8"-->
+<!--                 relativeToChangelogFile="true"-->
+<!--                 splitStatements="true"-->
+<!--                 path="/someData/insert-some-data.sql"/>-->
+<!--    </changeSet>-->
+
 </databaseChangeLog>

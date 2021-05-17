@@ -1,7 +1,9 @@
-package main.api.request;
+package main.api.response;
 
 import main.model.User;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AuthCheckResponse {
     private boolean result;
 
@@ -23,7 +25,6 @@ public class AuthCheckResponse {
         this.user = user;
     }
 }
-
 
 // "result": true,
 //         "user": {

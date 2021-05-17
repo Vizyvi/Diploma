@@ -20,7 +20,7 @@ public class Post {
     private ModerationStatus moderationStatus;
 
     @Column(name = "moderator_id")
-    private int moderatorId;
+    private Integer moderatorId;
 
     @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
     private int userId;
@@ -78,11 +78,11 @@ public class Post {
         isActive = active;
     }
 
-    public int getModeratorId() {
+    public Integer getModeratorId() {
         return moderatorId;
     }
 
-    public void setModeratorId(int moderatorId) {
+    public void setModeratorId(Integer moderatorId) {
         this.moderatorId = moderatorId;
     }
 
