@@ -1,7 +1,7 @@
 package main.service;
 
 import main.api.response.SettingsResponse;
-import main.model.GlobalSetting;
+import main.entity.GlobalSetting;
 import main.repository.GlobalSettingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

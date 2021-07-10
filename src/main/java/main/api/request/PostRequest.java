@@ -9,6 +9,8 @@ public class PostRequest {
     private Integer limit;
     private String mode;
 
+    public PostRequest(){}
+
     public PostRequest(Integer offset, Integer limit, String mode) {
         this.limit = limit;
         this.offset = offset;

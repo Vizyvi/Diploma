@@ -1,7 +1,7 @@
 package main.api.response;
 
 import main.api.request.PostRequest;
-import main.model.Post;
+import main.entity.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

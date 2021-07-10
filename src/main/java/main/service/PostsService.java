@@ -11,12 +11,9 @@ import java.util.stream.StreamSupport;
 @Service
 public class PostsService {
 
-    @Autowired
-    private PostsRepository postsRepository;
-    @Autowired
-    private PostRequest postRequest;
-    @Autowired
-    private PostResponse postResponse;
+    @Autowired private PostsRepository postsRepository;
+    @Autowired private PostRequest postRequest;
+    @Autowired private PostResponse postResponse;
 
     public void setCountOfPosts() {
         postResponse.setCount((int) StreamSupport.stream(postsRepository.findAll().spliterator(), false).count());
