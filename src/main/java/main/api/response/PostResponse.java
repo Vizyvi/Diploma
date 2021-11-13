@@ -1,21 +1,16 @@
 package main.api.response;
 
-import main.api.request.PostRequest;
-import main.entity.Post;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import main.api.bean.PostBean;
 
 import java.util.List;
 
-@Component
 public class PostResponse {
 
-    @Autowired
-    public PostResponse (PostRequest postRequest){}
+//    public PostResponse (PostRequest postRequest){}
 
     private int count;
 
-    private List<Post> posts;
+    private List<PostBean> posts;
 
     public int getCount() {
         return count;
@@ -25,34 +20,12 @@ public class PostResponse {
         this.count = count;
     }
 
-    public List<Post> getPosts() {
+    public List<PostBean> getPosts() {
         return posts;
     }
 
-    public void setPosts(List<Post> posts) {
+    public void setPosts(List<PostBean> posts) {
         this.posts = posts;
     }
 }
-
-//{
-//        "count": 390,
-//        "posts": [
-//          {
-    //        "id": 345,
-    //        "timestamp": 1592338706,
-        //        "user":
-        //        {
-        //        "id": 88,
-        //        "name": "Дмитрий Петров"
-        //        },
-    //        "title": "Заголовок поста",
-    //        "announce": "Текст анонса поста без HTML-тэгов",
-    //        "likeCount": 36,
-    //        "dislikeCount": 3,
-    //        "commentCount": 15,
-    //        "viewCount": 55
-    //        },
-//        {...}
-//        ]
-//        }
 

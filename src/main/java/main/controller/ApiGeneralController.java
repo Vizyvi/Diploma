@@ -3,6 +3,7 @@ package main.controller;
 import main.api.response.*;
 import main.service.PostsService;
 import main.service.SettingsService;
+import main.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +13,8 @@ public class ApiGeneralController {
 
     @Autowired private InitResponse initResponse;
     @Autowired private SettingsService settingsService;
-    @Autowired private PostsService postsService;
+    @Autowired private PostsService postService;
+    @Autowired private TagService tagService;
 
 
     @GetMapping("/init")
@@ -26,8 +28,7 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/auth/check")
-    private @ResponseBody
-    AuthCheckResponse authCheckResponse() {
+    private AuthCheckResponse authCheckResponse() {
         AuthCheckResponse bean;
         //TODO : Authentication
         bean = new AuthCheckResponse();
@@ -39,12 +40,15 @@ public class ApiGeneralController {
     private PostResponse postResponse(@RequestParam(value = "offset", required = false) Integer offset,
                                       @RequestParam(value = "limit", required = false) Integer limit,
                                       @RequestParam(value = "mode", required = false) String mode) {
-
-        return postsService.getPostResponse();
+        offset = offset == null ? 0 : offset;
+        limit = limit == null || limit > 10 || limit < 1 ? 10 : limit;
+        mode = mode == null ? "recent" : mode;
+        return postService.getPostResponse(offset, limit, mode);
     }
 
     @GetMapping("/tag")
-    private TagResponse tagResponse() {
-        return null;
+    private TagResponse tagResponse(@RequestParam(required = false) String query) {
+
+        return tagService.getTagResponse(query);
     }
 }

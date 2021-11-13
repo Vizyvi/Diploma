@@ -9,18 +9,18 @@ public class UserComponent {
 
     public UserBean createBeanFromEntity(User user) {
         UserBean bean = new UserBean();
-        bean.id = user.getId();
-        bean.name = user.getName();
-        bean.photo = user.getPhoto();
-        bean.email = user.getEmail();
+        bean.setId(user.getId());
+        bean.setName(user.getName());
+        bean.setPhoto(user.getPhoto());
+        bean.setEmail(user.getEmail());
         if (user.isModerator()) {
             //TODO: some logic with moderationCount
-            bean.moderation = true;
+            bean.setModeration(true);
         } else {
-            bean.moderation = false;
-            bean.moderationCount = 0;
+            bean.setModeration(false);
+            bean.setModerationCount(0);
         }
-        bean.settings = true;
+        bean.setSettings(true);
 
         return bean;
     }

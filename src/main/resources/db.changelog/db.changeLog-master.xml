@@ -7,15 +7,7 @@
                    http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
     <include file="liquibase-outputChangeLog.xml" relativeToChangelogFile="true"/>
-
-    <include file="/someData/insert_some_data.xml" relativeToChangelogFile="true"/>
-
-<!--    <changeSet id="109" author="meteo">-->
-<!--        <sqlFile dbms="sql"-->
-<!--                 encoding="utf8"-->
-<!--                 relativeToChangelogFile="true"-->
-<!--                 splitStatements="true"-->
-<!--                 path="/someData/insert-some-data.sql"/>-->
-<!--    </changeSet>-->
+<!--    <include file="someData/create-table.xml" relativeToChangelogFile="true"/>-->
+    <include file="someData/insert_some_data.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

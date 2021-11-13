@@ -81,6 +81,66 @@
             <column name="text" value="sometextALot"/>
             <column name="view_count" value="3"/>
         </insert>
+        <insert tableName="posts">
+            <column name="is_active" valueBoolean="true"/>
+            <column name="moderation_status" value="ACCEPTED"/>
+            <column name="moderator_id" defaultValue=""/>
+            <column name="text" value="Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua!"/>
+            <column name="time" value="2021.04.04"/>
+            <column name="title" value="Nazvanie Test"/>
+            <column name="user_id" value="2"/>
+            <column name="view_count" value="10"/>
+        </insert>
+        <insert tableName="posts">
+            <column name="is_active" valueBoolean="true"/>
+            <column name="moderation_status" value="ACCEPTED"/>
+            <column name="moderator_id" value="1"/>
+            <column name="text" value="Itaque earum rerum hic tenetur a sapiente delectus, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua!"/>
+            <column name="time" value="2021.05.05"/>
+            <column name="title" value="Nazvani eDrugoef dfg"/>
+            <column name="user_id" value="1"/>
+            <column name="view_count" value="55"/>
+        </insert>
+        <insert tableName="posts">
+            <column name="is_active" valueBoolean="true"/>
+            <column name="moderation_status" value="NEW"/>
+            <column name="moderator_id" value="1"/>
+            <column name="text" value="somet ex tALot Long long long text"/>
+            <column name="time" value="2021.06.06"/>
+            <column name="title" value="Nazvan ieSovs emDrugoe"/>
+            <column name="user_id" value="2"/>
+            <column name="view_count" value="15"/>
+        </insert>
+        <insert tableName="posts">
+            <column name="is_active" valueBoolean="true"/>
+            <column name="moderation_status" value="ACCEPTED"/>
+            <column name="moderator_id" defaultValue=""/>
+            <column name="text" value="somet dfgdf extTe dfst"/>
+            <column name="time" value="2021.07.07"/>
+            <column name="title" value="Nazvan ieSodfge"/>
+            <column name="user_id" value="2"/>
+            <column name="view_count" value="120"/>
+        </insert>
+        <insert tableName="posts">
+            <column name="is_active" valueBoolean="true"/>
+            <column name="moderation_status" value="ACCEPTED"/>
+            <column name="moderator_id" value="1"/>
+            <column name="text" value="somete xtasdqw dfsomet extsometex wtgere dfger bywnncw wgwey"/>
+            <column name="time" value="2021.08.08"/>
+            <column name="title" value="Nazvangr ieSo sfedfge"/>
+            <column name="user_id" value="1"/>
+            <column name="view_count" value="90"/>
+        </insert>
+        <insert tableName="posts">
+            <column name="is_active" valueBoolean="true"/>
+            <column name="moderation_status" value="NEW"/>
+            <column name="moderator_id" value="1"/>
+            <column name="text" value="somete xtasdqw dfsomet extsometex wtgere dfger bywnncw wgwey"/>
+            <column name="time" value="2021.09.09"/>
+            <column name="title" value="Nazvangr ieSo sfedfge"/>
+            <column name="user_id" value="3"/>
+            <column name="view_count" value="129"/>
+        </insert>
     </changeSet>
 
     <changeSet id="4" author="meteo">
@@ -98,6 +158,18 @@
         </insert>
         <insert tableName="post_votes">
             <column name="user_id" value="3"/>
+            <column name="post_id" value="3"/>
+            <column name="time" value="2021.1.15"/>
+            <column name="value" valueBoolean="true"/>
+        </insert>
+        <insert tableName="post_votes">
+            <column name="user_id" value="2"/>
+            <column name="post_id" value="3"/>
+            <column name="time" value="2021.1.15"/>
+            <column name="value" valueBoolean="true"/>
+        </insert>
+        <insert tableName="post_votes">
+            <column name="user_id" value="1"/>
             <column name="post_id" value="3"/>
             <column name="time" value="2021.1.15"/>
             <column name="value" valueBoolean="true"/>
@@ -129,6 +201,30 @@
             <column name="post_id" value="3"/>
             <column name="tag_id" value="1"/>
         </insert>
+        <insert tableName="tag2post">
+            <column name="post_id" value="4"/>
+            <column name="tag_id" value="1"/>
+        </insert>
+        <insert tableName="tag2post">
+            <column name="post_id" value="5"/>
+            <column name="tag_id" value="2"/>
+        </insert>
+        <insert tableName="tag2post">
+            <column name="post_id" value="6"/>
+            <column name="tag_id" value="2"/>
+        </insert>
+        <insert tableName="tag2post">
+            <column name="post_id" value="7"/>
+            <column name="tag_id" value="2"/>
+        </insert>
+        <insert tableName="tag2post">
+            <column name="post_id" value="8"/>
+            <column name="tag_id" value="3"/>
+        </insert>
+        <insert tableName="tag2post">
+            <column name="post_id" value="9"/>
+            <column name="tag_id" value="1"/>
+        </insert>
     </changeSet>
 
     <changeSet id="7" author="meteo">
@@ -151,6 +247,26 @@
             <column name="user_id" value="2"/>
             <column name="time" value="2021.01.15"/>
             <column name="text" value="suchAnImportantComment"/>
+        </insert>
+        <insert tableName="post_comments">
+            <column name="post_id" value="3"/>
+            <column name="user_id" value="3"/>
+            <column name="time" value="2021.01.15"/>
+            <column name="text" value="ffewfw"/>
+        </insert>
+        <insert tableName="post_comments">
+            <column name="parent_id" value="null"/>
+            <column name="post_id" value="3"/>
+            <column name="user_id" value="1"/>
+            <column name="time" value="2021.10.06"/>
+            <column name="text" value="such AnImportan tComment"/>
+        </insert>
+        <insert tableName="post_comments">
+            <column name="parent_id" value="null"/>
+            <column name="post_id" value="3"/>
+            <column name="user_id" value="1"/>
+            <column name="time" value="2021.10.10"/>
+            <column name="text" value="su dfsdchAnI sm portant sdComment"/>
         </insert>
     </changeSet>
 

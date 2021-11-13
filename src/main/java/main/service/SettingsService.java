@@ -6,6 +6,8 @@ import main.repository.GlobalSettingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class SettingsService {
 
@@ -14,7 +16,7 @@ public class SettingsService {
 
     public SettingsResponse getGlobalSettings() {
         SettingsResponse settingsResponse = new SettingsResponse();
-        Iterable<GlobalSetting> globalSettings = repository.findAll();
+        List<GlobalSetting> globalSettings = repository.findAll();
         for(GlobalSetting gs : globalSettings) {
             switch (gs.getCode()) {
                 case "MULTIUSER_MODE":
