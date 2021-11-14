@@ -1,11 +1,8 @@
 package main.service;
 
-import main.api.bean.PostBean;
-import main.api.bean.UserPostBean;
+import main.api.bean.*;
 import main.api.response.PostResponse;
-import main.entity.ModerationStatus;
-import main.entity.Post;
-import main.entity.Tag;
+import main.entity.*;
 import main.repository.PostsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,13 +43,100 @@ public class PostsService {
             default: allPosts = new ArrayList<>();
         }
         response.setCount(allPosts.size());
-        List<PostBean> list = allPosts.stream().map(this::createBeanFromEntity).collect(Collectors.toList());
+        List<PostBean> list = allPosts.stream().map(p -> {
+            PostBean bean = new PostBean();
+            copyDataToBeanFromEntity(bean, p);
+            return bean;
+        }).collect(Collectors.toList());
         response.setPosts(list);
         return response;
     }
 
-    public PostBean createBeanFromEntity(Post post) {
-        PostBean bean = new PostBean();
+    public PostResponse getPostBySearch(Integer offset, Integer limit, String query) {
+        PostResponse response = new PostResponse();
+        List<Post> allPosts;
+        if(query == null) {
+            allPosts = postsRepository.getAllPosts(offset, limit);
+        } else {
+            query = "%" + query + "%";
+            allPosts = postsRepository.getPostsByQuery(query, offset, limit);
+        }
+        response.setCount(allPosts.size());
+        List<PostBean> list = allPosts.stream().map(p -> {
+            PostBean bean = new PostBean();
+            copyDataToBeanFromEntity(bean, p);
+            return bean;
+        }).collect(Collectors.toList());
+        response.setPosts(list);
+        return response;
+    }
+
+    public PostResponse getPostByDate(Integer offset, Integer limit, String date) {
+        PostResponse response = new PostResponse();
+        List<Post> allPosts;
+        if(date == null) {
+            allPosts = postsRepository.getAllPosts(offset, limit);
+        } else {
+            allPosts = postsRepository.getPostsByDate(date, offset, limit);
+        }
+        response.setCount(allPosts.size());
+        List<PostBean> list = allPosts.stream().map(p -> {
+            PostBean bean = new PostBean();
+            copyDataToBeanFromEntity(bean, p);
+            return bean;
+        }).collect(Collectors.toList());
+        response.setPosts(list);
+        return response;
+    }
+
+    public PostResponse getPostByTag(Integer offset, Integer limit, String tag) {
+        PostResponse response = new PostResponse();
+        List<Post> allPosts;
+        if(tag == null) {
+            allPosts = postsRepository.getAllPosts(offset, limit);
+        } else {
+            tag = "%" + tag + "%";
+            allPosts = postsRepository.getPostsByTag(tag, offset, limit);
+        }
+        response.setCount(allPosts.size());
+        List<PostBean> list = allPosts.stream().map(p -> {
+            PostBean bean = new PostBean();
+            copyDataToBeanFromEntity(bean, p);
+            return bean;
+        }).collect(Collectors.toList());
+        response.setPosts(list);
+        return response;
+    }
+
+    public UniquePostBean getUniqPostBean(Long id) {
+        Post post = postsRepository.getOne(id);
+        if (post == null) {
+            return null;
+        }
+        UniquePostBean bean = new UniquePostBean();
+        copyDataToBeanFromEntity(bean, post);
+        List<PostCommentBean> comments = new ArrayList<>();
+        List<PostComment> postComments = post.getPostComments();
+        for(PostComment comment : postComments) {
+            PostCommentBean postCommentBean = new PostCommentBean();
+            postCommentBean.setId(comment.getId());
+            postCommentBean.setTimestamp(post.getTime().getTime() / 1000);
+            postCommentBean.setText(comment.getText());
+            User user = post.getUser();
+            UserPostCommentBean userBean = new UserPostCommentBean();
+            userBean.setId(user.getId());
+            userBean.setName(user.getName());
+            userBean.setPhoto(user.getPhoto());
+            postCommentBean.setUser(userBean);
+            comments.add(postCommentBean);
+        }
+        List<String> tags = post.getTags().stream().map(Tag::getName).collect(Collectors.toList());
+        bean.setComments(comments);
+        bean.setTags(tags);
+        return bean;
+    }
+
+    public void copyDataToBeanFromEntity(PostBean bean, Post post) {
         UserPostBean userPostBean = new UserPostBean();
         userPostBean.setId(post.getUser().getId());
         userPostBean.setName(post.getUser().getName());
@@ -72,7 +155,6 @@ public class PostsService {
         bean.setLikeCount(Long.parseLong(info.get(0)[0].toString()));
         bean.setDislikeCount(Long.parseLong(info.get(0)[1].toString()));
         bean.setCommentCount(Long.parseLong(info.get(0)[2].toString()));
-        return bean;
     }
 
     public List<Post> getAllPosts() {

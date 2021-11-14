@@ -5,6 +5,7 @@ import main.service.PostsService;
 import main.service.SettingsService;
 import main.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -47,8 +48,12 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/tag")
-    private TagResponse tagResponse(@RequestParam(required = false) String query) {
-
+    private TagResponse tagResponse(@RequestParam(value ="query", required = false) String query) {
         return tagService.getTagResponse(query);
     }
+    
+//    @GetMapping(value = "/calendar")
+//    public String searchResponse(@RequestParam(required = false) String year) {
+//
+//    }
 }

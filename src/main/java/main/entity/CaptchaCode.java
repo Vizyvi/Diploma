@@ -1,7 +1,7 @@
 package main.entity;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "captcha_codes")
@@ -12,7 +12,7 @@ public class CaptchaCode {
     private Long id;
 
     @Column(name = "time", nullable = false)
-    private Date time;
+    private LocalDate time;
 
     @Column(name = "code", nullable = false)
     private String code;
@@ -28,15 +28,15 @@ public class CaptchaCode {
         this.id = id;
     }
 
-    public Date getTime() {
+    public LocalDate getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(LocalDate time) {
         this.time = time;
     }
 
-    public String isCode() {
+    public String getCode() {
         return code;
     }
 

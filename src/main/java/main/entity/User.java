@@ -1,12 +1,22 @@
 package main.entity;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "users")
 public class User {
+
+    public User() {}
+
+    public User(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.regTime = LocalDate.now();
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +26,7 @@ public class User {
     private boolean isModerator;
 
     @Column(name = "reg_time", nullable = false)
-    private Date regTime;
+    private LocalDate regTime;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -58,11 +68,11 @@ public class User {
         isModerator = moderator;
     }
 
-    public Date getRegTime() {
+    public LocalDate getRegTime() {
         return regTime;
     }
 
-    public void setRegTime(Date regTime) {
+    public void setRegTime(LocalDate regTime) {
         this.regTime = regTime;
     }
 

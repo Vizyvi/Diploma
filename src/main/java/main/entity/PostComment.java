@@ -12,7 +12,7 @@ public class PostComment {
     private Long id;
 
     @Column(name = "parent_id")
-    private int parentId;
+    private Integer parentId;
 
     @Column(name = "post_id", nullable = false, insertable = false, updatable = false)
     private int postId;
@@ -42,11 +42,11 @@ public class PostComment {
         this.id = id;
     }
 
-    public int getParentId() {
+    public Integer getParentId() {
         return parentId;
     }
 
-    public void setParentId(int parentId) {
+    public void setParentId(Integer parentId) {
         this.parentId = parentId;
     }
 
