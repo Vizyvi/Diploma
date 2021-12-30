@@ -12,10 +12,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class ApiGeneralController {
 
-    @Autowired private InitResponse initResponse;
-    @Autowired private SettingsService settingsService;
-    @Autowired private PostsService postService;
-    @Autowired private TagService tagService;
+    private final InitResponse initResponse;
+    private final SettingsService settingsService;
+    private final PostsService postService;
+    private final TagService tagService;
+
+    @Autowired
+    public ApiGeneralController(InitResponse initResponse, SettingsService settingsService, PostsService postService, TagService tagService) {
+        this.initResponse = initResponse;
+        this.settingsService = settingsService;
+        this.postService = postService;
+        this.tagService = tagService;
+    }
 
 
     @GetMapping("/init")
@@ -51,7 +59,7 @@ public class ApiGeneralController {
     private TagResponse tagResponse(@RequestParam(value ="query", required = false) String query) {
         return tagService.getTagResponse(query);
     }
-    
+
 //    @GetMapping(value = "/calendar")
 //    public String searchResponse(@RequestParam(required = false) String year) {
 //

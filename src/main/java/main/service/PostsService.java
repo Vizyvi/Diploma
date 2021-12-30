@@ -4,6 +4,8 @@ import main.api.bean.*;
 import main.api.response.PostResponse;
 import main.entity.*;
 import main.repository.PostsRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +24,6 @@ public class PostsService {
     @Autowired private PostsRepository postsRepository;
 
     public PostResponse getPostResponse(Integer offset, Integer limit, String mode) {
-        PostResponse response = new PostResponse();
         Date date = Calendar.getInstance().getTime();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String strDate = dateFormat.format(date);
@@ -42,14 +43,7 @@ public class PostsService {
                 break;
             default: allPosts = new ArrayList<>();
         }
-        response.setCount(allPosts.size());
-        List<PostBean> list = allPosts.stream().map(p -> {
-            PostBean bean = new PostBean();
-            copyDataToBeanFromEntity(bean, p);
-            return bean;
-        }).collect(Collectors.toList());
-        response.setPosts(list);
-        return response;
+        return getPostResponse(allPosts);
     }
 
     public PostResponse getPostBySearch(Integer offset, Integer limit, String query) {
@@ -72,25 +66,16 @@ public class PostsService {
     }
 
     public PostResponse getPostByDate(Integer offset, Integer limit, String date) {
-        PostResponse response = new PostResponse();
         List<Post> allPosts;
         if(date == null) {
             allPosts = postsRepository.getAllPosts(offset, limit);
         } else {
             allPosts = postsRepository.getPostsByDate(date, offset, limit);
         }
-        response.setCount(allPosts.size());
-        List<PostBean> list = allPosts.stream().map(p -> {
-            PostBean bean = new PostBean();
-            copyDataToBeanFromEntity(bean, p);
-            return bean;
-        }).collect(Collectors.toList());
-        response.setPosts(list);
-        return response;
+        return getPostResponse(allPosts);
     }
 
     public PostResponse getPostByTag(Integer offset, Integer limit, String tag) {
-        PostResponse response = new PostResponse();
         List<Post> allPosts;
         if(tag == null) {
             allPosts = postsRepository.getAllPosts(offset, limit);
@@ -98,14 +83,7 @@ public class PostsService {
             tag = "%" + tag + "%";
             allPosts = postsRepository.getPostsByTag(tag, offset, limit);
         }
-        response.setCount(allPosts.size());
-        List<PostBean> list = allPosts.stream().map(p -> {
-            PostBean bean = new PostBean();
-            copyDataToBeanFromEntity(bean, p);
-            return bean;
-        }).collect(Collectors.toList());
-        response.setPosts(list);
-        return response;
+        return getPostResponse(allPosts);
     }
 
     public UniquePostBean getUniqPostBean(Long id) {
@@ -145,10 +123,12 @@ public class PostsService {
         bean.setTimestamp(post.getTime().getTime() / 1000);
         bean.setUser(userPostBean);
         bean.setTitle(post.getTitle());
-        if (post.getText().length() > 150) {
-            bean.setAnnounce(post.getText().substring(0, 150) + "...");
+        String text = post.getText();
+        text = removeHTMLAttributes(text);
+        if (text.length() > 150) {
+            bean.setAnnounce(text.substring(0, 150) + "...");
         } else {
-            bean.setAnnounce(post.getText());
+            bean.setAnnounce(text);
         }
         bean.setViewCount(post.getViewCount());
         List<Object[]> info = postsRepository.getPostInfo(post.getId());
@@ -159,5 +139,21 @@ public class PostsService {
 
     public List<Post> getAllPosts() {
         return postsRepository.findAll();
+    }
+
+    private PostResponse getPostResponse(List<Post> allPosts) {
+        PostResponse response = new PostResponse();
+        response.setCount(allPosts.size());
+        List<PostBean> list = allPosts.stream().map(p -> {
+            PostBean bean = new PostBean();
+            copyDataToBeanFromEntity(bean, p);
+            return bean;
+        }).collect(Collectors.toList());
+        response.setPosts(list);
+        return response;
+    }
+
+    private String removeHTMLAttributes(String text) {
+        return Jsoup.clean(text, Safelist.none());
     }
 }

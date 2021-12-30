@@ -1,13 +1,10 @@
 package main.repository;
 
-import main.entity.ModerationStatus;
 import main.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -20,12 +17,12 @@ public interface PostsRepository extends JpaRepository<Post, Integer> {
     List<Post> findAllByActiveAndStatusAndTimeRecent(boolean isActive, String status, String time, Integer offset, Integer limit);
 
     @Query(value = "SELECT * FROM Posts\n" +
-            "WHERE is_active = ?1 AND moderation_status = ?2 AND time <= ?3" +
-            "ORDER BY time" +
+            "WHERE is_active = ?1 AND moderation_status = ?2 AND time <= ?3 " +
+            "ORDER BY time " +
             "LIMIT ?4, ?5", nativeQuery = true)
     List<Post> findAllByActiveAndStatusAndTimeEarly(boolean isActive, String status, String time, Integer offset, Integer limit);
 
-    @Query(value = "SELECT * FROM Posts\n" +
+    @Query(value = "SELECT * FROM Posts p\n" +
             "LEFT JOIN (SELECT post_id, count(id) as cId FROM post_comments\n" +
             "GROUP BY post_id) pc ON pc.post_id = p.id\n" +
             "WHERE is_active = ?1 AND moderation_status = ?2 AND time <= ?3\n" +
@@ -33,7 +30,7 @@ public interface PostsRepository extends JpaRepository<Post, Integer> {
             "LIMIT ?4, ?5", nativeQuery = true)
     List<Post> findAllByActiveAndStatusAndTimePopular(boolean isActive, String status, String time, Integer offset, Integer limit);
 
-    @Query(value = "SELECT * FROM Posts\n" +
+    @Query(value = "SELECT * FROM Posts p\n" +
             "LEFT JOIN (SELECT post_id, count(id) as likes FROM post_votes\n" +
             "GROUP BY post_id) pv ON pv.post_id = p.id\n" +
             "WHERE is_active = ?1 AND moderation_status = ?2 AND time <= ?3\n" +

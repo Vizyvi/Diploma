@@ -20,7 +20,7 @@ public class CaptchaService {
     public CaptchaBean getCaptcha(){
         CaptchaBean bean = new CaptchaBean();
         Cage cage = new GCage();
-        String token = cage.getTokenGenerator().next();
+        String token = cage.getTokenGenerator().next().substring(0, 5);
         byte[] draw = cage.draw(token);
         String encodedString = Base64.getEncoder().encodeToString(draw);
         bean.setImage(HEADER + encodedString);
