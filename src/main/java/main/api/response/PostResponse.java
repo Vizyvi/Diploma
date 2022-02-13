@@ -8,15 +8,15 @@ public class PostResponse {
 
 //    public PostResponse (PostRequest postRequest){}
 
-    private int count;
+    private long count;
 
     private List<PostBean> posts;
 
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
-    public void setCount(int count) {
+    public void setCount(long count) {
         this.count = count;
     }
 

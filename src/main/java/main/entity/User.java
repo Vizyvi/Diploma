@@ -1,13 +1,17 @@
 package main.entity;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     public User() {}
 
@@ -52,6 +56,10 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<PostVote> postVotes;
 
+    public Role getRole() {
+        return isModerator ? Role.MODERATOR : Role.USER;
+    }
+
     public Long getId() {
         return id;
     }
@@ -90,10 +98,6 @@ public class User {
 
     public void setEmail(String eMail) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setPassword(String password) {
@@ -138,5 +142,40 @@ public class User {
 
     public void setPostVotes(List<PostVote> postVotes) {
         this.postVotes = postVotes;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getRole().getAuthorities();
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

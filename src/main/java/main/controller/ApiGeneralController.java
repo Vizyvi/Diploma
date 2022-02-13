@@ -5,8 +5,9 @@ import main.service.PostsService;
 import main.service.SettingsService;
 import main.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Calendar;
 
 @RestController
 @RequestMapping("/api")
@@ -36,15 +37,6 @@ public class ApiGeneralController {
         return settingsService.getGlobalSettings();
     }
 
-    @GetMapping("/auth/check")
-    private AuthCheckResponse authCheckResponse() {
-        AuthCheckResponse bean;
-        //TODO : Authentication
-        bean = new AuthCheckResponse();
-        bean.result = false;
-        return bean;
-    }
-
     @GetMapping("/post")
     private PostResponse postResponse(@RequestParam(value = "offset", required = false) Integer offset,
                                       @RequestParam(value = "limit", required = false) Integer limit,
@@ -60,8 +52,9 @@ public class ApiGeneralController {
         return tagService.getTagResponse(query);
     }
 
-//    @GetMapping(value = "/calendar")
-//    public String searchResponse(@RequestParam(required = false) String year) {
-//
-//    }
+    @GetMapping(value = "/calendar")
+    public CalendarResponse searchResponse(@RequestParam(required = false) String year) {
+        int intYear = year == null ? Calendar.getInstance().get(Calendar.YEAR) : Integer.parseInt(year);
+        return postService.getCalendarResponse(intYear);
+    }
 }

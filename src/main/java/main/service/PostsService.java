@@ -1,59 +1,63 @@
 package main.service;
 
 import main.api.bean.*;
+import main.api.response.CalendarResponse;
 import main.api.response.PostResponse;
 import main.entity.*;
-import main.repository.PostsRepository;
+import main.repository.PostRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class PostsService {
 
-    @Autowired private PostsRepository postsRepository;
+    private final PostRepository postRepository;
+    private final UserService userService;
+
+    public PostsService(PostRepository postRepository, UserService userService) {
+        this.postRepository = postRepository;
+        this.userService = userService;
+    }
 
     public PostResponse getPostResponse(Integer offset, Integer limit, String mode) {
-        Date date = Calendar.getInstance().getTime();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        String strDate = dateFormat.format(date);
-        List<Post> allPosts;
+        int pageNumber = (limit <= 0 || offset < 0) ? 0 : offset / limit;
+        Pageable page = PageRequest.of(pageNumber, limit);
+        Page<Post> posts;
         switch (mode) {
             case "recent" :
-                allPosts = postsRepository.findAllByActiveAndStatusAndTimeRecent(true, ModerationStatus.ACCEPTED.toString(), strDate, offset, limit);
+                posts = postRepository.findAllRecent(page);
                 break;
             case "early":
-                allPosts = postsRepository.findAllByActiveAndStatusAndTimeEarly(true, ModerationStatus.ACCEPTED.toString(), strDate, offset, limit);
+                posts = postRepository.findAllEarly(page);
                 break;
             case "popular":
-                allPosts = postsRepository.findAllByActiveAndStatusAndTimePopular(true, ModerationStatus.ACCEPTED.toString(), strDate, offset, limit);
+                posts = postRepository.findAllPopular(page);
                 break;
             case "best":
-                allPosts = postsRepository.findAllByActiveAndStatusAndTimeBest(true, ModerationStatus.ACCEPTED.toString(), strDate, offset, limit);
+                posts = postRepository.findAllBest(page);
                 break;
-            default: allPosts = new ArrayList<>();
+            default: posts = Page.empty();
         }
-        return getPostResponse(allPosts);
+
+        return getPostResponse(posts);
     }
 
     public PostResponse getPostBySearch(Integer offset, Integer limit, String query) {
         PostResponse response = new PostResponse();
         List<Post> allPosts;
         if(query == null) {
-            allPosts = postsRepository.getAllPosts(offset, limit);
+            allPosts = postRepository.getAllPosts(offset, limit);
         } else {
             query = "%" + query + "%";
-            allPosts = postsRepository.getPostsByQuery(query, offset, limit);
+            allPosts = postRepository.getPostsByQuery(query, offset, limit);
         }
         response.setCount(allPosts.size());
         List<PostBean> list = allPosts.stream().map(p -> {
@@ -68,9 +72,9 @@ public class PostsService {
     public PostResponse getPostByDate(Integer offset, Integer limit, String date) {
         List<Post> allPosts;
         if(date == null) {
-            allPosts = postsRepository.getAllPosts(offset, limit);
+            allPosts = postRepository.getAllPosts(offset, limit);
         } else {
-            allPosts = postsRepository.getPostsByDate(date, offset, limit);
+            allPosts = postRepository.getPostsByDate(date, offset, limit);
         }
         return getPostResponse(allPosts);
     }
@@ -78,16 +82,16 @@ public class PostsService {
     public PostResponse getPostByTag(Integer offset, Integer limit, String tag) {
         List<Post> allPosts;
         if(tag == null) {
-            allPosts = postsRepository.getAllPosts(offset, limit);
+            allPosts = postRepository.getAllPosts(offset, limit);
         } else {
             tag = "%" + tag + "%";
-            allPosts = postsRepository.getPostsByTag(tag, offset, limit);
+            allPosts = postRepository.getPostsByTag(tag, offset, limit);
         }
         return getPostResponse(allPosts);
     }
 
     public UniquePostBean getUniqPostBean(Long id) {
-        Post post = postsRepository.getOne(id);
+        Post post = postRepository.getOne(id);
         if (post == null) {
             return null;
         }
@@ -131,19 +135,71 @@ public class PostsService {
             bean.setAnnounce(text);
         }
         bean.setViewCount(post.getViewCount());
-        List<Object[]> info = postsRepository.getPostInfo(post.getId());
+        List<Object[]> info = postRepository.getPostInfo(post.getId());
         bean.setLikeCount(Long.parseLong(info.get(0)[0].toString()));
         bean.setDislikeCount(Long.parseLong(info.get(0)[1].toString()));
         bean.setCommentCount(Long.parseLong(info.get(0)[2].toString()));
     }
 
+    public CalendarResponse getCalendarResponse(int year) {
+        CalendarResponse response = new CalendarResponse();
+        List<String[]> allPosts = postRepository.findAllActiveByYear(year);
+        Map<String, Integer> posts = new LinkedHashMap<>();
+        for(String[] row : allPosts) {
+            String key = row[0];
+            Integer value = Integer.parseInt(row[1]);
+            posts.put(key, value);
+        }
+        response.setPosts(posts);
+        response.setYears(postRepository.findAllYearsWithPosts());
+        return response;
+    }
+
     public List<Post> getAllPosts() {
-        return postsRepository.findAll();
+        return postRepository.findAll();
+    }
+
+    public PostResponse getAllMyPosts(Integer offset, Integer limit, String status) {
+        int pageNumber = (limit <= 0 || offset < 0) ? 0 : offset / limit;
+        Pageable page = PageRequest.of(pageNumber, limit);
+        Page<Post> posts;
+        User user = userService.getCurrentUser();
+        if(user == null) {
+            return getPostResponse(Page.empty());
+        }
+        switch (status) {
+            case "inactive" :
+                posts = postRepository.findMyPostsInactive(user.getId().intValue(), page);
+                break;
+            case "pending":
+                posts = postRepository.findMyPostsPending(user.getId().intValue(), page);
+                break;
+            case "declined":
+                posts = postRepository.findMyPostsDeclined(user.getId().intValue(), page);
+                break;
+            case "published":
+                posts = postRepository.findMyPostsPublished(user.getId().intValue(), page);
+                break;
+            default: posts = Page.empty();
+        }
+        return getPostResponse(posts);
     }
 
     private PostResponse getPostResponse(List<Post> allPosts) {
         PostResponse response = new PostResponse();
         response.setCount(allPosts.size());
+        List<PostBean> list = allPosts.stream().map(p -> {
+            PostBean bean = new PostBean();
+            copyDataToBeanFromEntity(bean, p);
+            return bean;
+        }).collect(Collectors.toList());
+        response.setPosts(list);
+        return response;
+    }
+
+    private PostResponse getPostResponse(Page<Post> allPosts) {
+        PostResponse response = new PostResponse();
+        response.setCount(allPosts.getTotalElements());
         List<PostBean> list = allPosts.stream().map(p -> {
             PostBean bean = new PostBean();
             copyDataToBeanFromEntity(bean, p);

@@ -1,6 +1,8 @@
 package main.repository;
 
 import main.entity.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -8,7 +10,33 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PostsRepository extends JpaRepository<Post, Integer> {
+public interface PostRepository extends JpaRepository<Post, Integer> {
+
+    Page<Post> findAll(Pageable pageable);
+
+    @Query(value = "SELECT p FROM Post p " +
+            "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() " +
+            "ORDER BY p.time DESC")
+    Page<Post> findAllRecent(Pageable pageable);
+
+    @Query(value = "SELECT p FROM Post p " +
+            "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() " +
+            "ORDER BY p.time")
+    Page<Post> findAllEarly(Pageable pageable);
+
+    @Query(value = "SELECT p FROM Post p " +
+            "LEFT JOIN PostComment pc ON pc.postId = p.id\n" +
+            "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() " +
+            "GROUP BY p.id " +
+            "ORDER BY COUNT(pc) DESC")
+    Page<Post> findAllPopular(Pageable pageable);
+
+    @Query(value = "SELECT p FROM Post p " +
+            "LEFT JOIN PostVote pv ON pv.postId = p.id\n" +
+            "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() " +
+            "GROUP BY p.id " +
+            "ORDER BY COUNT(pv) DESC")
+    Page<Post> findAllBest(Pageable pageable);
 
     @Query(value = "SELECT * FROM Posts\n" +
                 "WHERE is_active = ?1 AND moderation_status = ?2 AND time <= ?3\n" +
@@ -78,5 +106,37 @@ public interface PostsRepository extends JpaRepository<Post, Integer> {
             "WHERE id = ?1 \n", nativeQuery = true)
     Post getOne(Long id);
 
-//    List<Post> findAllByActiveAndModerationStatusAndTime(boolean isActive, ModerationStatus moderationStatus, Date time);
+    @Query(value = "SELECT DATE(p.time), COUNT(p.id) FROM Posts p\n" +
+            "   JOIN (\n" +
+            "       SELECT time FROM Posts\n" +
+            "       WHERE YEAR(time) = ?1\n" +
+            "       GROUP BY time\n" +
+            "       ) pt ON pt.time = p.time\n" +
+            "GROUP BY p.time\n" +
+            "ORDER BY p.time", nativeQuery = true)
+    List<String[]> findAllActiveByYear(Integer year);
+
+    @Query(value =  "SELECT YEAR(p.time) AS years FROM Posts p\n" +
+                    "GROUP BY YEAR(p.time)\n" +
+                    "ORDER BY years", nativeQuery = true)
+    List<Integer> findAllYearsWithPosts();
+
+    @Query(value = "SELECT p FROM Post p WHERE p.moderationStatus = 'NEW'")
+    List<Post> findAllNewPostsForModerator();
+
+    @Query(value = "SELECT p FROM Post p " +
+            "WHERE p.userId = ?1 AND p.isActive = false ")
+    Page<Post> findMyPostsInactive(Integer userId, Pageable pageable);
+
+    @Query(value = "SELECT p FROM Post p " +
+            "WHERE p.userId = ?1 AND p.isActive = true AND p.moderationStatus = 'NEW' ")
+    Page<Post> findMyPostsPending(Integer userId, Pageable pageable);
+
+    @Query(value = "SELECT p FROM Post p " +
+            "WHERE p.userId = ?1 AND p.isActive = true AND p.moderationStatus = 'DECLINED' ")
+    Page<Post> findMyPostsDeclined(Integer userId, Pageable pageable);
+
+    @Query(value = "SELECT p FROM Post p " +
+            "WHERE p.userId = ?1 AND p.isActive = true AND p.moderationStatus = 'ACCEPTED'")
+    Page<Post> findMyPostsPublished(Integer userId, Pageable pageable);
 }
