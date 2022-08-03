@@ -1,8 +1,9 @@
 package main.repository;
 
-import org.springframework.data.repository.CrudRepository;
+import main.entity.TagToPost;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TagToPostRepository  {
+public interface TagToPostRepository  extends JpaRepository<TagToPost, Long> {
 }

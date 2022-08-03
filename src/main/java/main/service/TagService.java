@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 @Service
 public class TagService {
     private final TagsRepository tagsRepository;
-    private final PostsService postService;
+    private final PostService postService;
 
     @Autowired
-    public TagService(PostsService postService, TagsRepository tagsRepository) {
+    public TagService(PostService postService, TagsRepository tagsRepository) {
         this.postService = postService;
         this.tagsRepository = tagsRepository;
     }

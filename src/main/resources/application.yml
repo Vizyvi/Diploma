@@ -1,15 +1,30 @@
-spring.datasource.url: jdbc:mysql://localhost:3306/blog?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-spring.datasource.username: root
-spring.datasource.password: 12345
-spring.jpa.hibernate.ddl-auto: none
 spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/blog?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: root
+    password: 12345
+
   liquibase:
     change-log: classpath:db.changelog/db.changeLog-master.xml
 
+  mail:
+    host: smtp.yandex.ru
+    port: 465
+    username:
+    password:
 
-blog.title: DevPub
-blog.subtitle: Рассказы разработчиков
-blog.phone: +7 903 666-44-55
-blog.email: mail@mail.ru
-blog.copyright: Дмитрий Сергеев
-blog.copyrightFrom: 2005
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+blog:
+  title: DevPub
+  subtitle: Рассказы разработчиков
+  phone: +7 903 666-44-55
+  email: mail@mail.ru
+  copyright: Дмитрий Сергеев
+  copyrightFrom: 2005
+
+image:
+  width: 36
+  height: 36

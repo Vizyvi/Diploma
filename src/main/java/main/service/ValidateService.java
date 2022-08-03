@@ -1,14 +1,16 @@
 package main.service;
 
 import main.api.response.Response;
-import main.api.response.ApiAuthResponseFalse;
+import main.api.response.ErrorsResponse;
 import main.api.response.RegisterUserBean;
 import main.entity.CaptchaCode;
 import main.entity.User;
 import main.repository.CaptchaCodeRepository;
 import main.repository.UserRepository;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -16,23 +18,24 @@ import java.util.regex.Pattern;
 
 @Service
 public class ValidateService {
+    private static final long MAXSIZE = 5L * 1024 * 1024;
 
     final CaptchaCodeRepository captchaCodeRepository;
-    final UserRepository userRepository;
+    final UserService userService;
 
-    public ValidateService(CaptchaCodeRepository captchaCodeRepository, UserRepository userRepository) {
+    public ValidateService(CaptchaCodeRepository captchaCodeRepository, UserService userService) {
         this.captchaCodeRepository = captchaCodeRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public Response validateUser(RegisterUserBean userBean) {
-        ApiAuthResponseFalse incorrent = new ApiAuthResponseFalse();
+        ErrorsResponse incorrent = new ErrorsResponse();
         boolean email = EmailValidator.getInstance().isValid(userBean.getEmail());
         if (!email) {
             incorrent.errors.put("email", "Неверный формат e-mail");
         } else {
-            Optional<User> user = userRepository.findByEmail(userBean.getEmail());
-            if (user.isEmpty()) {
+            Optional<User> user = userService.findByEmail(userBean.getEmail());
+            if (user.isPresent()) {
                 incorrent.errors.put("email", "Этот e-mail уже зарегистрирован");
             }
         }
@@ -55,9 +58,40 @@ public class ValidateService {
             return incorrent;
         } else {
             User user = new User(userBean.getName(), userBean.getEmail(), userBean.getPassword());
-            userRepository.save(user);
-            return new Response(true);
+            userService.save(user);
+            return Response.success();
         }
+    }
+
+    public Response validateProfile(String name, String email, String password, MultipartFile photo) {
+        ErrorsResponse errorsResponse = new ErrorsResponse();
+        boolean isEmailCorrect = EmailValidator.getInstance().isValid(email);
+        if (!isEmailCorrect) {
+            errorsResponse.errors.put("email", "Неверный формат e-mail");
+        } else {
+            User currentUser = userService.getCurrentUser();
+            Optional<User> user = userService.findByEmail(email);
+            if (!currentUser.getEmail().equals(email) && user.isPresent()) {
+                errorsResponse.errors.put("email", "Этот e-mail уже зарегистрирован");
+            }
+        }
+        Pattern pattern = Pattern.compile("[\\da-zA-Zа-яёА-ЯЁ]+");
+        Matcher matcher = pattern.matcher(name);
+        if (!matcher.matches()) {
+            errorsResponse.errors.put("name", "Неверное имя пользователя");
+        }
+        if (password != null && password.length() < 6) {
+            errorsResponse.errors.put("password", "Пароль короче 6-ти символов");
+        }
+        if(photo != null) {
+            String extension = FilenameUtils.getExtension(photo.getOriginalFilename());
+            if (!"jpg".equals(extension) && !"png".equals(extension)) {
+                errorsResponse.errors.put("photo", "Неверный формат файла!");
+            } else if (photo.getSize() > MAXSIZE) {
+                errorsResponse.errors.put("photo", "Размер файла превышает допустимый размер!");
+            }
+        }
+        return errorsResponse.errors.isEmpty() ? Response.success() : errorsResponse;
     }
 
 }

@@ -1,4 +1,4 @@
-package main.entity;
+package main.entity.enums;
 
 public enum RolePermission {
     WRITE,

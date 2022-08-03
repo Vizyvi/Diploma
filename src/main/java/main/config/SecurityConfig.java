@@ -12,8 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static main.entity.RolePermission.MODERATE;
-import static main.entity.RolePermission.WRITE;
+import static main.entity.enums.RolePermission.MODERATE;
+import static main.entity.enums.RolePermission.WRITE;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -29,8 +29,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers( "/api/post/moderation", "/api/moderation").hasAuthority(MODERATE.name())
-                .antMatchers(HttpMethod.PUT , "/api/settings").hasAuthority(MODERATE.name())
+                .antMatchers("/api/post/moderation", "/api/moderation").hasAuthority(MODERATE.name())
+                .antMatchers(HttpMethod.PUT, "/api/settings").hasAuthority(MODERATE.name())
                 .antMatchers("/api/auth/logout", "/api/post/*", "/api/profile/my",
                         "/api/comment", "/api/image", "/api/statistics/my").hasAnyAuthority(WRITE.name(), MODERATE.name())
                 .antMatchers("/**", "/api/auth/*").permitAll()
@@ -62,7 +62,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 
 
-
 //  Требуется
 //          moderator
 //          PUT  /api/settings
@@ -80,8 +79,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //          PUT  /api/post/{ID}
 //          POST /api/post
 //          GET  /api/post/my
-
-
 
 
 //  Не требуется

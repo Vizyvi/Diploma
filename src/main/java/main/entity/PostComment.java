@@ -12,13 +12,13 @@ public class PostComment {
     private Long id;
 
     @Column(name = "parent_id")
-    private Integer parentId;
+    private Long parentId;
 
     @Column(name = "post_id", nullable = false, insertable = false, updatable = false)
-    private int postId;
+    private Long postId;
 
     @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
-    private int userId;
+    private Long userId;
 
     @Column(name = "time", nullable = false)
     private Date time;
@@ -42,27 +42,27 @@ public class PostComment {
         this.id = id;
     }
 
-    public Integer getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(Integer parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 
-    public int getPostId() {
+    public Long getPostId() {
         return postId;
     }
 
-    public void setPostId(int postId) {
+    public void setPostId(Long postId) {
         this.postId = postId;
     }
 
-    public int getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

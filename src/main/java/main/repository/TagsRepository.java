@@ -1,14 +1,13 @@
 package main.repository;
 
 
-import main.entity.Post;
 import main.entity.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TagsRepository extends JpaRepository<Tag, Long> {
@@ -26,4 +25,7 @@ public interface TagsRepository extends JpaRepository<Tag, Long> {
             "WHERE t.name IN ?1 \n" +
             "GROUP BY tag_id", nativeQuery = true)
     List<Object[]> getCountForListName(List<String> tagNames);
+
+    @Query(value = "SELECT t FROM Tag t WHERE t.name = ?1")
+    Optional<Tag> findByName(String tagName);
 }

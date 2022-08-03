@@ -1,5 +1,8 @@
 package main.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import main.api.bean.CaptchaBean;
 import main.api.request.LoginRequest;
 import main.api.response.Response;
@@ -73,4 +76,17 @@ public class ApiAuthController {
         response.result = true;
         return response;
     }
+
+    @PostMapping(value = "/restore", consumes = "application/json")
+    public Response sendRestorePasswordCode(@RequestBody String json) throws JsonProcessingException {
+        JsonNode parent= new ObjectMapper().readTree(json);
+        String email = parent.path("email").asText();
+        return userService.restorePassword(email);
+    }
+
+//    @PostMapping(value = "/password", consumes = "application/json")
+//    public ErrorsResponse restorePasswordCheck() {
+//
+//
+//    }
 }

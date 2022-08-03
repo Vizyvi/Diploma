@@ -1,12 +1,18 @@
 package main.controller;
 
+import main.api.request.CommentRequest;
+import main.api.request.MyProfileChangeRequest;
+import main.api.request.PostModerationRequest;
 import main.api.response.*;
-import main.service.PostsService;
+import main.service.CommentService;
+import main.service.PostService;
 import main.service.SettingsService;
 import main.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Calendar;
 
 @RestController
@@ -15,15 +21,17 @@ public class ApiGeneralController {
 
     private final InitResponse initResponse;
     private final SettingsService settingsService;
-    private final PostsService postService;
+    private final PostService postService;
     private final TagService tagService;
+    private final CommentService commentService;
 
     @Autowired
-    public ApiGeneralController(InitResponse initResponse, SettingsService settingsService, PostsService postService, TagService tagService) {
+    public ApiGeneralController(InitResponse initResponse, SettingsService settingsService, PostService postService, TagService tagService, CommentService commentService) {
         this.initResponse = initResponse;
         this.settingsService = settingsService;
         this.postService = postService;
         this.tagService = tagService;
+        this.commentService = commentService;
     }
 
 
@@ -56,5 +64,34 @@ public class ApiGeneralController {
     public CalendarResponse searchResponse(@RequestParam(required = false) String year) {
         int intYear = year == null ? Calendar.getInstance().get(Calendar.YEAR) : Integer.parseInt(year);
         return postService.getCalendarResponse(intYear);
+    }
+
+    @PostMapping(value = "/image")
+    public String saveImage(@RequestPart MultipartFile image) throws IOException {
+        return settingsService.saveImage(image);
+    }
+
+    @PostMapping("/comment")
+    public Long addComment(@RequestBody CommentRequest request) throws IOException {
+        return commentService.addComment(request);
+    }
+
+    @PostMapping("/moderation")
+    public Response makeDecision(@RequestBody PostModerationRequest request) {
+        return postService.changePostStatus(request);
+    }
+
+    @PostMapping(value = "/profile/my", consumes = "multipart/form-data")
+    public Response editMyProfile(@RequestPart(required = false) MultipartFile photo,
+                                  @RequestParam String email,
+                                  @RequestParam String name,
+                                  @RequestParam(required = false) String password,
+                                  @RequestParam(required = false) Boolean removePhoto) {
+        return settingsService.saveProfile(name, email, password, removePhoto, photo);
+    }
+
+    @PostMapping(value = "/profile/my", consumes = "application/json")
+    public Response editMyProfileWithPhoto(@RequestBody MyProfileChangeRequest request) {
+        return settingsService.saveProfile(request.getName(), request.getEmail(), request.getPassword(), request.isRemovePhoto(), null);
     }
 }

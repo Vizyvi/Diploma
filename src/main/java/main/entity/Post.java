@@ -1,5 +1,7 @@
 package main.entity;
 
+import main.entity.enums.ModerationStatus;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -147,5 +149,13 @@ public class Post {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public ModerationStatus getModerationStatus() {
+        return moderationStatus;
+    }
+
+    public void setModerationStatus(ModerationStatus moderationStatus) {
+        this.moderationStatus = moderationStatus;
     }
 }

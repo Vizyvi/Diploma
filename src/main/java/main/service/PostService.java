@@ -1,30 +1,43 @@
 package main.service;
 
 import main.api.bean.*;
+import main.api.request.AddingPostRequest;
+import main.api.request.PostModerationRequest;
 import main.api.response.CalendarResponse;
+import main.api.response.ErrorsResponse;
 import main.api.response.PostResponse;
+import main.api.response.Response;
 import main.entity.*;
+import main.entity.enums.ModerationStatus;
+import main.entity.enums.Role;
 import main.repository.PostRepository;
+import main.repository.TagToPostRepository;
+import main.repository.TagsRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class PostsService {
+public class PostService {
 
     private final PostRepository postRepository;
     private final UserService userService;
+    private final TagsRepository tagRepository;
+    private final TagToPostRepository tagToPostRepository;
 
-    public PostsService(PostRepository postRepository, UserService userService) {
+    public PostService(PostRepository postRepository, UserService userService, TagsRepository tagRepository, TagToPostRepository tagToPostRepository) {
         this.postRepository = postRepository;
         this.userService = userService;
+        this.tagRepository = tagRepository;
+        this.tagToPostRepository = tagToPostRepository;
     }
 
     public PostResponse getPostResponse(Integer offset, Integer limit, String mode) {
@@ -185,6 +198,92 @@ public class PostsService {
         return getPostResponse(posts);
     }
 
+    public Response savePost(AddingPostRequest postRequest) {
+        ErrorsResponse response = checkPostForErrors(postRequest);
+        if (response != null) {
+            return response;
+        }
+        createPost(null, postRequest);
+        return Response.success();
+    }
+
+    public Response editPost(Long id, AddingPostRequest postRequest){
+        Optional<Post> optionalPost = postRepository.findById(id);
+        Post post;
+        if(optionalPost.isPresent()) {
+            post = optionalPost.get();
+        } else {
+            return new ErrorsResponse();
+        }
+        ErrorsResponse response = checkPostForErrors(postRequest);
+        if (response != null) {
+            return response;
+        }
+        Post savedPost = createPost(post, postRequest);
+        User user = userService.getCurrentUser();
+        if(user.getRole().equals(Role.MODERATOR)) {
+            savedPost.setModerationStatus(post.getModerationStatus());
+            postRepository.save(savedPost);
+        }
+        return Response.success();
+    }
+
+    private Post createPost(Post post, AddingPostRequest postRequest) {
+        if(post == null) {
+            post = new Post();
+        }
+        long currentTime = System.currentTimeMillis();
+        if(currentTime > postRequest.getTimestamp() * 1000) {
+            post.setTime(new Date(currentTime));
+        } else {
+            post.setTime(new Date(postRequest.getTimestamp()));
+        }
+        post.setActive(postRequest.getActive());
+        post.setTitle(removeHTMLAttributes(postRequest.getTitle()));
+        post.setText(removeHTMLAttributes(postRequest.getText()));
+        post.setModerationStatus(ModerationStatus.NEW);
+        post.setUser(userService.getCurrentUser());
+        Post savedPost = postRepository.save(post);
+        List<Tag> tags = new ArrayList<>();
+        for(String str : postRequest.getTags()) {
+            Optional<Tag> optionalTag = tagRepository.findByName(str);
+            if(optionalTag.isPresent()){
+                tags.add(optionalTag.get());
+            } else {
+                Tag tag = new Tag();
+                tag.setName(str);
+                tags.add(tagRepository.save(tag));
+            }
+        }
+        List<TagToPost> tagToPosts = tags.stream()
+                .map(tag -> new TagToPost(savedPost.getId(), tag.getId()))
+                .collect(Collectors.toList());
+        tagToPostRepository.saveAll(tagToPosts);
+        return savedPost;
+    }
+
+    private ErrorsResponse checkPostForErrors(AddingPostRequest postRequest) {
+        ErrorsResponse response = new ErrorsResponse();
+        String title = postRequest.getTitle();
+        if(!StringUtils.hasText(title)) {
+            response.errors.put("title", "Заголовок не может быть пустым");
+        }
+        if(title.length() < 3) {
+            response.errors.put("title", "Заголовок слишком короткий (3 символа мин)");
+        }
+        String text = postRequest.getText();
+        if(!StringUtils.hasText(text)) {
+            response.errors.put("text", "Текст публикации не может быть пустым");
+        }
+        if(text.length() < 50) {
+            response.errors.put("text", "Текст публикации слишком короткий (50 символов мин)");
+        }
+        if(!response.errors.isEmpty()) {
+            return response;
+        }
+        return null;
+    }
+
     private PostResponse getPostResponse(List<Post> allPosts) {
         PostResponse response = new PostResponse();
         response.setCount(allPosts.size());
@@ -209,7 +308,27 @@ public class PostsService {
         return response;
     }
 
-    private String removeHTMLAttributes(String text) {
+    public String removeHTMLAttributes(String text) {
         return Jsoup.clean(text, Safelist.none());
+    }
+
+    public Optional<Post> getPostById(Long id) {
+        return postRepository.findById(id);
+    }
+
+    public Response changePostStatus(PostModerationRequest request) {
+        User currentUser = userService.getCurrentUser();
+        if(currentUser == null || !currentUser.isModerator()) {
+            return new Response();
+        }
+        Post post = postRepository.getOne(request.getPostId());
+        if(post == null || !post.getModerationStatus().equals(ModerationStatus.NEW)) {
+            return new Response();
+        }
+        post.setModeratorId(currentUser.getId().intValue());
+        ModerationStatus status = request.getDecision().equals("accept") ? ModerationStatus.ACCEPTED : ModerationStatus.DECLINED;
+        post.setModerationStatus(status);
+        postRepository.save(post);
+        return Response.success();
     }
 }

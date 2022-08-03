@@ -1,8 +1,10 @@
 package main.controller;
 
 import main.api.bean.UniquePostBean;
+import main.api.request.AddingPostRequest;
 import main.api.response.PostResponse;
-import main.service.PostsService;
+import main.api.response.Response;
+import main.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/post")
 public class ApiPostController {
-    @Autowired private PostsService postService;
+    @Autowired private PostService postService;
 
     @GetMapping(value = "/search")
     public PostResponse getPostsBySearch(@RequestParam(required = false) Integer offset,
@@ -59,5 +61,15 @@ public class ApiPostController {
         status = status == null ? "published" : status;
         PostResponse response = postService.getAllMyPosts(offset, limit, status);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping()
+    public Response saveNewPost(@RequestBody AddingPostRequest postRequest) {
+        return postService.savePost(postRequest);
+    }
+
+    @PutMapping("/{id}")
+    public Response editPost(@PathVariable Long id, @RequestBody AddingPostRequest postRequest) {
+        return postService.editPost(id, postRequest);
     }
 }

@@ -287,4 +287,12 @@
             <column name="secret_code" value="admin"/>
         </insert>
     </changeSet>
+
+    <changeSet id="9" author="meteo">
+        <insert tableName="captcha_codes">
+            <column name="time" value="2022.10.01"/>
+            <column name="code" value="secretCode2"/>
+            <column name="secret_code" value="verySecretCode2"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>

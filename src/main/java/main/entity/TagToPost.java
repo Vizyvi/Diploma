@@ -6,15 +6,24 @@ import java.util.List;
 @Entity
 @Table(name = "tag2post")
 public class TagToPost {
+
+    public TagToPost() {
+    }
+
+    public TagToPost(Long postId, Long tagId) {
+        this.postId = postId;
+        this.tagId = tagId;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "post_id", nullable = false)
-    private int postId;
+    private Long postId;
 
     @Column(name = "tag_id", nullable = false)
-    private int tagId;
+    private Long tagId;
 
     @ManyToMany(mappedBy = "tags")
     private List<Post> posts;
@@ -30,19 +39,19 @@ public class TagToPost {
         this.id = id;
     }
 
-    public int getPostId() {
+    public Long getPostId() {
         return postId;
     }
 
-    public void setPostId(int postId) {
+    public void setPostId(Long postId) {
         this.postId = postId;
     }
 
-    public int getTagId() {
+    public Long getTagId() {
         return tagId;
     }
 
-    public void setTagId(int tagId) {
+    public void setTagId(Long tagId) {
         this.tagId = tagId;
     }
 
